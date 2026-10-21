@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPayments, recordPayment } from '@/lib/db';
+import { getPayments, recordPayment, getInvoicePayments } from '@/lib/db';
 import { UserRole } from '@/types/crm';
 import { sanitizeInputString } from '@/lib/security';
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
+    const rawInvoiceId = searchParams.get('invoiceId');
+    if (rawInvoiceId) {
+      const invoiceId = sanitizeInputString(rawInvoiceId, 60);
+      const invoicePayments = await getInvoicePayments(invoiceId);
+      return NextResponse.json(invoicePayments);
+    }
+
     const rawRole = searchParams.get('role');
     const rawAgentId = searchParams.get('agentId');
     const rawTeamMembers = searchParams.get('teamMembers');
@@ -27,6 +34,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: error.message || 'Failed to fetch payments' }, { status: 500 });
   }
 }
+
 
 export async function POST(req: NextRequest) {
   try {

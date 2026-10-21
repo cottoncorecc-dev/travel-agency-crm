@@ -31,7 +31,10 @@ import {
   Booking,
   Client,
   Company,
+  CompanySettings,
   Invoice,
+  InvoiceProgressStatus,
+  InvoiceSignature,
   Payment,
   AgentActivity,
   SystemStats,
@@ -43,6 +46,7 @@ import {
 
 interface CrmStore {
   companies: Company[];
+  companySettings?: Record<string, CompanySettings>;
   agents: Agent[];
   bookings: Booking[];
   invoices: Invoice[];
@@ -58,7 +62,9 @@ const STORE_FILE = path.join(DATA_DIR, 'crm_store.json');
 
 // Dedicated collection names in MongoDB
 const COL_COMPANIES = 'companies';
+const COL_SETTINGS = 'company_settings';
 const COL_AGENTS = 'agents';
+
 const COL_BOOKINGS = 'bookings';
 const COL_INVOICES = 'invoices';
 const COL_PAYMENTS = 'crm_payments';
@@ -150,6 +156,110 @@ export async function getCompanyById(id: string): Promise<Company | null> {
   const store = ensureLocalStore();
   return (store.companies || []).find((c) => c.id === id) || null;
 }
+
+export function getDefaultCompanySettings(companyId = 'comp_default', companyName = 'Devntom Travel'): CompanySettings {
+  return {
+    companyId,
+    companyName,
+    tagline: 'Premium Umrah, Hajj & Bespoke Global Travel Management',
+    logoUrl: '',
+    email: 'operations@devntom.com',
+    phone: '+44 20 7946 0912',
+    whatsapp: '+44 7700 900123',
+    address: '45-47 Merchant Gate, City Centre, London, EC1A 4JQ, United Kingdom',
+    website: 'https://devntom.com',
+    taxRegistrationNumber: 'GB 924 8192 44 | ATOL: 11849 | IATA: 91-2 4912',
+    bankName: 'Barclays Bank UK PLC',
+    accountName: `${companyName} Ltd - Client Escrow`,
+    accountNumber: '40918234',
+    sortCode: '20-00-00',
+    iban: 'GB29BARC20000040918234',
+    swift: 'BARCGB22',
+    termsAndConditions: `1. BOOKING CONFIRMATION & DEPOSIT:
+A travel itinerary reservation is officially locked only upon receipt of the initial agreed deposit and acceptance of these Terms & Conditions. All deposits are strictly non-refundable once airline ticket PNRs and hotel room allocations are secured.
+
+2. PASSPORT VALIDITY & VISA REGULATIONS:
+All travelers must possess a valid biometric machine-readable passport with a minimum of 6 months validity from the scheduled departure date. While our agency facilitates visa clearance with the Saudi Ministry of Hajj & Umrah and Foreign Affairs, final approval and entry permission are strictly within the sovereign authority of the destination government.
+
+3. HOTEL CHECK-IN & ROOM ALLOCATION:
+Standard hotel check-in time in Makkah and Madinah is 16:00, and check-out is 12:00 noon. Quad and Triple rooms utilize single standard beds or premium sofa beds in accordance with Saudi Tourism classifications. Specific room view requests (Haram view / Kaaba view) are subject to hotel availability at check-in.
+
+4. FLIGHT SCHEDULES & LUGGAGE:
+Flight schedules and baggage allowances are strictly governed by the issuing carrier. Travelers are required to report to the airport at least 3 hours prior to departure for international flights. Any airline-imposed schedule amendments or excess baggage charges are the responsibility of the traveler.
+
+5. CANCELLATION & AMENDMENT POLICIES:
+All cancellation requests must be submitted in writing. Cancellations made >30 days prior to departure will forfeit deposit only. Cancellations within 15–30 days will incur 50% of total package value. Cancellations within 14 days of departure are 100% non-refundable.
+
+6. CLIENT DECLARATION & CONSENT:
+By signing this agreement or checking the agreement box below, the client affirms that all traveler names, passport numbers, and itinerary details are accurate, and authorizes the processing of travel documents accordingly.`,
+    invoiceFooterNote: 'Thank you for placing your trust in us for your blessed journey. All client escrow funds are independently safeguarded.',
+    receiptFooterNote: 'Official Payment Receipt. Please retain this document as verified proof of payment.',
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+export async function getCompanySettings(companyId = 'comp_default'): Promise<CompanySettings> {
+  const db = await getMongoDb();
+  if (db) {
+    try {
+      const doc = await db.collection<CompanySettings>(COL_SETTINGS).findOne({ companyId });
+      if (doc) return doc;
+    } catch (e) {
+      console.warn('Mongo getCompanySettings error:', e);
+    }
+  }
+
+  const store = ensureLocalStore();
+  if (!store.companySettings) store.companySettings = {};
+  if (store.companySettings[companyId]) {
+    return store.companySettings[companyId];
+  }
+
+  const comp = (store.companies || []).find((c) => c.id === companyId);
+  const def = getDefaultCompanySettings(companyId, comp?.name || 'Devntom Travel');
+  store.companySettings[companyId] = def;
+  saveLocalStore(store);
+  return def;
+}
+
+export async function updateCompanySettings(
+  companyId: string,
+  updates: Partial<CompanySettings>
+): Promise<CompanySettings> {
+  const current = await getCompanySettings(companyId);
+  const updated: CompanySettings = {
+    ...current,
+    ...updates,
+    companyId,
+    updatedAt: new Date().toISOString(),
+  };
+
+  const db = await getMongoDb();
+  if (db) {
+    try {
+      await db
+        .collection<CompanySettings>(COL_SETTINGS)
+        .updateOne({ companyId }, { $set: updated }, { upsert: true });
+    } catch (e) {
+      console.warn('Mongo updateCompanySettings error:', e);
+    }
+  }
+
+  const store = ensureLocalStore();
+  if (!store.companySettings) store.companySettings = {};
+  store.companySettings[companyId] = updated;
+
+  if (updates.companyName) {
+    const cIdx = (store.companies || []).findIndex((c) => c.id === companyId);
+    if (cIdx !== -1) {
+      store.companies[cIdx].name = updates.companyName;
+    }
+  }
+
+  saveLocalStore(store);
+  return updated;
+}
+
 
 export async function createCompanySignup(data: {
   companyName: string;
@@ -833,10 +943,13 @@ export async function createBooking(
   }
 
   const invoiceId = `inv_${timestamp}`;
+  const companySettings = await getCompanySettings(newBooking.companyId || 'comp_default');
+  const signingToken = `sign_${timestamp}_${Math.random().toString(36).substring(2, 9)}`;
+
   generatedInvoice = {
     id: invoiceId,
     companyId: newBooking.companyId,
-    companyName: newBooking.companyName,
+    companyName: newBooking.companyName || companySettings.companyName,
     invoiceRef: invRef,
     bookingId: newBooking.id,
     bookingRef: newBooking.bookingRef,
@@ -856,17 +969,26 @@ export async function createBooking(
         : newBooking.costing.paidAmount > 0
         ? 'Partial'
         : 'Unpaid',
+    progressStatus:
+      newBooking.costing.paidAmount >= newBooking.costing.totalAmount
+        ? 'Paid'
+        : newBooking.costing.paidAmount > 0
+        ? 'Partially Paid'
+        : 'Sent for Signing',
+    signingToken,
+    signature: { signed: false },
     items: invItems,
     notes: `Invoice for Booking ${newBooking.bookingRef}. Package: ${newBooking.destination}.`,
     bankDetails: {
-      bankName: 'Client Escrow Clearing Account',
-      accountName: `${newBooking.companyName || 'Travel Escrow'} Ltd - Client Escrow`,
-      accountNumber: '40918234',
-      iban: 'GB29BARC20000040918234',
-      swift: 'BARCGB22',
+      bankName: companySettings.bankName,
+      accountName: companySettings.accountName,
+      accountNumber: companySettings.accountNumber,
+      iban: companySettings.iban || '',
+      swift: companySettings.swift || '',
     },
     createdAt: new Date().toISOString(),
   };
+
 
   newBooking.invoiceId = invoiceId;
 
@@ -1171,6 +1293,252 @@ export async function getClients(
   }
   return all.filter((c) => c.assignedAgentId === agentId);
 }
+
+export async function createClient(clientData: {
+  name: string;
+  phone: string;
+  whatsapp?: string;
+  email?: string;
+  passportNumber?: string;
+  nationality?: string;
+  companyId?: string;
+  assignedAgentId?: string;
+  assignedAgentName?: string;
+  notes?: string;
+}): Promise<Client> {
+  const timestamp = Date.now();
+  const newClient: Client = {
+    id: `cl_${timestamp}_${Math.random().toString(36).substring(2, 6)}`,
+    companyId: clientData.companyId || 'comp_default',
+    name: clientData.name.trim(),
+    phone: clientData.phone.trim(),
+    whatsapp: clientData.whatsapp?.trim() || clientData.phone.trim(),
+    email: clientData.email?.trim() || '',
+    passportNumber: clientData.passportNumber?.trim() || '',
+    nationality: clientData.nationality?.trim() || 'British',
+    assignedAgentId: clientData.assignedAgentId || 'agent_super_admin',
+    assignedAgentName: clientData.assignedAgentName || 'Alexander Ward',
+    totalBookings: 0,
+    totalSpent: 0,
+    outstandingBalance: 0,
+    lastBookingDate: '',
+    createdAt: new Date().toISOString(),
+  };
+
+  const db = await getMongoDb();
+  if (db) {
+    try {
+      await db.collection(COL_CLIENTS).insertOne(newClient as any);
+    } catch (e) {
+      console.warn('Mongo insert client error:', e);
+    }
+  }
+
+  const store = ensureLocalStore();
+  store.clients.unshift(newClient);
+  store.activities.unshift({
+    id: `act_${timestamp}`,
+    companyId: newClient.companyId,
+    agentId: newClient.assignedAgentId,
+    agentName: newClient.assignedAgentName,
+    action: 'Client Created',
+    entityType: 'client',
+    entityRef: newClient.name,
+    details: `Added new client: ${newClient.name} (${newClient.phone})`,
+    timestamp: new Date().toISOString(),
+  });
+  saveLocalStore(store);
+
+  return newClient;
+}
+
+export async function updateClient(id: string, updates: Partial<Client>): Promise<Client | null> {
+  const db = await getMongoDb();
+  if (db) {
+    try {
+      await db.collection(COL_CLIENTS).updateOne({ id }, { $set: updates });
+    } catch (e) {
+      console.warn('Mongo update client error:', e);
+    }
+  }
+
+  const store = ensureLocalStore();
+  const idx = store.clients.findIndex((c) => c.id === id);
+  if (idx === -1) return null;
+
+  store.clients[idx] = { ...store.clients[idx], ...updates };
+  saveLocalStore(store);
+  return store.clients[idx];
+}
+
+export async function deleteClient(id: string): Promise<boolean> {
+  const db = await getMongoDb();
+  if (db) {
+    try {
+      await db.collection(COL_CLIENTS).deleteOne({ id });
+    } catch (e) {
+      console.warn('Mongo delete client error:', e);
+    }
+  }
+
+  const store = ensureLocalStore();
+  store.clients = store.clients.filter((c) => c.id !== id);
+  saveLocalStore(store);
+  return true;
+}
+
+// -------------------------------------------------------------
+// INVOICE SIGNING & PUBLIC VERIFICATION
+// -------------------------------------------------------------
+export async function getInvoiceByToken(
+  tokenOrId: string
+): Promise<{ invoice: Invoice; companySettings: CompanySettings; booking?: Booking } | null> {
+  const clean = tokenOrId.trim();
+  const db = await getMongoDb();
+  let invoice: Invoice | null = null;
+  let booking: Booking | null = null;
+
+  if (db) {
+    try {
+      invoice = await db.collection<Invoice>(COL_INVOICES).findOne({
+        $or: [{ signingToken: clean }, { id: clean }, { invoiceRef: clean }],
+      });
+      if (invoice?.bookingId) {
+        booking = await db.collection<Booking>(COL_BOOKINGS).findOne({ id: invoice.bookingId });
+      }
+    } catch (e) {
+      console.warn('Mongo find invoice by token error:', e);
+    }
+  }
+
+  if (!invoice) {
+    const store = ensureLocalStore();
+    invoice =
+      store.invoices.find(
+        (i) => i.signingToken === clean || i.id === clean || i.invoiceRef === clean
+      ) || null;
+    if (invoice?.bookingId) {
+      booking = store.bookings.find((b) => b.id === invoice?.bookingId) || null;
+    }
+  }
+
+  if (!invoice) return null;
+
+  const companySettings = await getCompanySettings(invoice.companyId || 'comp_default');
+  return { invoice, companySettings, booking: booking || undefined };
+}
+
+export async function signInvoice(
+  tokenOrId: string,
+  signatureData: {
+    signerName: string;
+    signerEmail?: string;
+    agreedToTerms: boolean;
+    signatureType?: 'drawn' | 'typed';
+    signatureData?: string;
+    ipAddress?: string;
+  }
+): Promise<{ success: boolean; invoice?: Invoice; error?: string }> {
+  const record = await getInvoiceByToken(tokenOrId);
+  if (!record) {
+    return { success: false, error: 'Invoice not found or signing link has expired.' };
+  }
+
+  const { invoice } = record;
+  const signedAt = new Date().toISOString();
+
+  const signature: InvoiceSignature = {
+    signed: true,
+    signerName: signatureData.signerName.trim(),
+    signerEmail: signatureData.signerEmail?.trim() || invoice.clientEmail,
+    signedAt,
+    agreedToTerms: true,
+    signatureType: signatureData.signatureType || 'typed',
+    signatureData: signatureData.signatureData,
+    ipAddress: signatureData.ipAddress,
+  };
+
+  const progressStatus: InvoiceProgressStatus =
+    invoice.paidAmount >= invoice.totalAmount
+      ? 'Paid'
+      : invoice.paidAmount > 0
+      ? 'Partially Paid'
+      : 'Signed & Confirmed';
+
+  const updatedInvoice: Invoice = {
+    ...invoice,
+    signature,
+    progressStatus,
+  };
+
+  const db = await getMongoDb();
+  if (db) {
+    try {
+      await db.collection(COL_INVOICES).updateOne(
+        { id: invoice.id },
+        { $set: { signature, progressStatus } }
+      );
+      if (invoice.bookingId) {
+        await db.collection(COL_BOOKINGS).updateOne(
+          { id: invoice.bookingId },
+          { $set: { bookingStatus: 'Confirmed' } }
+        );
+      }
+    } catch (e) {
+      console.warn('Mongo sign invoice error:', e);
+    }
+  }
+
+  const store = ensureLocalStore();
+  const invIdx = store.invoices.findIndex((i) => i.id === invoice.id);
+  if (invIdx !== -1) {
+    store.invoices[invIdx].signature = signature;
+    store.invoices[invIdx].progressStatus = progressStatus;
+  }
+
+  if (invoice.bookingId) {
+    const bIdx = store.bookings.findIndex((b) => b.id === invoice.bookingId);
+    if (bIdx !== -1) {
+      store.bookings[bIdx].bookingStatus = 'Confirmed';
+    }
+  }
+
+  store.activities.unshift({
+    id: `act_${Date.now()}`,
+    companyId: invoice.companyId,
+    agentId: invoice.agentId,
+    agentName: invoice.agentName,
+    action: 'Agreement Signed by Client',
+    entityType: 'invoice',
+    entityRef: invoice.invoiceRef,
+    details: `Client ${signature.signerName} accepted terms and signed invoice ${invoice.invoiceRef} (£${invoice.totalAmount.toLocaleString()})`,
+    timestamp: signedAt,
+  });
+
+  saveLocalStore(store);
+  return { success: true, invoice: updatedInvoice };
+}
+
+export async function getInvoicePayments(invoiceId: string): Promise<Payment[]> {
+  const db = await getMongoDb();
+  if (db) {
+    try {
+      const records = await db
+        .collection<Payment>(COL_PAYMENTS)
+        .find({ invoiceId })
+        .sort({ date: 1, createdAt: 1 })
+        .toArray();
+      if (records.length > 0) return records;
+    } catch (e) {
+      console.warn('Mongo getInvoicePayments error:', e);
+    }
+  }
+  const store = ensureLocalStore();
+  return store.payments
+    .filter((p) => p.invoiceId === invoiceId)
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+}
+
 
 // -------------------------------------------------------------
 // ACTIVITIES & STATS (Company Scoped)

@@ -18,6 +18,10 @@ import {
   Info,
   DollarSign,
   ChevronDown,
+  ArrowRight,
+  ArrowLeft,
+  UserCheck,
+  UserPlus,
 } from 'lucide-react';
 import {
   Booking,
@@ -28,6 +32,7 @@ import {
   TransportLeg,
   PackageCosting,
   PaxPriceBreakdown,
+  Client,
 } from '@/types/crm';
 
 interface BookingModalProps {
@@ -36,6 +41,8 @@ interface BookingModalProps {
   booking?: Booking | null;
   currentUser: Agent;
   onSaveBooking: (bookingData: any, generateInvoice: boolean) => Promise<void>;
+  availableClients?: Client[];
+  onOpenAddCustomer?: () => void;
 }
 
 const emptyPaxBreakdown = (): PaxPriceBreakdown => ({
@@ -61,10 +68,16 @@ export default function BookingModal({
   booking,
   currentUser,
   onSaveBooking,
+  availableClients = [],
+  onOpenAddCustomer,
 }: BookingModalProps) {
   if (!isOpen) return null;
 
   const isEditing = Boolean(booking);
+
+  // Client Selection Mode
+  const [clientEntryMode, setClientEntryMode] = useState<'registered' | 'direct'>('registered');
+  const [selectedClientId, setSelectedClientId] = useState<string>('');
 
   // 1. Header Information
   const [profileNumber, setProfileNumber] = useState(
@@ -163,6 +176,59 @@ export default function BookingModal({
   const [paidAmountInput, setPaidAmountInput] = useState<number>(booking?.costing?.paidAmount || 0);
   const [activeSection, setActiveSection] = useState<'info' | 'flight' | 'hotels' | 'visa' | 'transport' | 'costing'>('info');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const SECTIONS: Array<{ id: 'info' | 'flight' | 'hotels' | 'visa' | 'transport' | 'costing'; label: string; stepNumber: number }> = [
+    { id: 'info', label: 'Client & Passengers', stepNumber: 1 },
+    { id: 'flight', label: 'Flights & Luggage', stepNumber: 2 },
+    { id: 'hotels', label: 'Hotels & Rooms', stepNumber: 3 },
+    { id: 'visa', label: 'Visa Processing', stepNumber: 4 },
+    { id: 'transport', label: 'Ground Transport', stepNumber: 5 },
+    { id: 'costing', label: 'Package Costing & Review', stepNumber: 6 },
+  ];
+
+  const currentSectionIndex = SECTIONS.findIndex((s) => s.id === activeSection);
+  const nextSection = SECTIONS[currentSectionIndex + 1];
+  const prevSection = SECTIONS[currentSectionIndex - 1];
+
+  const handleNextStep = () => {
+    if (activeSection === 'info' && !leadPassengerName.trim()) {
+      alert('Please enter or select a Lead Passenger Name before proceeding.');
+      return;
+    }
+    if (nextSection) {
+      setActiveSection(nextSection.id);
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (prevSection) {
+      setActiveSection(prevSection.id);
+    }
+  };
+
+  const handleSelectClient = (clientId: string) => {
+    setSelectedClientId(clientId);
+    if (!clientId) return;
+    const found = availableClients.find((c) => c.id === clientId);
+    if (found) {
+      setLeadPassengerName(found.name);
+      setContactNumber(found.phone);
+      setWhatsapp(found.whatsapp || found.phone);
+      setEmail(found.email || '');
+      if (found.passportNumber) {
+        setPassengers((prev) => {
+          const copy = [...prev];
+          if (copy[0]) {
+            copy[0] = { ...copy[0], name: found.name, passportNo: found.passportNumber };
+          }
+          return copy;
+        });
+      }
+      if (found.nationality) {
+        setVisaNationality(found.nationality);
+      }
+    }
+  };
 
   // Sync lead passenger name into passengers[0] if needed
   useEffect(() => {

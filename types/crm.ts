@@ -165,6 +165,43 @@ export interface Booking {
   updatedAt: string;
 }
 
+export interface CompanySettings {
+  id?: string;
+  companyId: string;
+  companyName: string;
+  tagline?: string;
+  logoUrl?: string;
+  email: string;
+  phone: string;
+  whatsapp?: string;
+  address: string;
+  website?: string;
+  taxRegistrationNumber?: string; // VAT / ATOL / IATA Registration
+  bankName: string;
+  accountName: string;
+  accountNumber: string;
+  sortCode?: string;
+  iban?: string;
+  swift?: string;
+  termsAndConditions: string;
+  invoiceFooterNote?: string;
+  receiptFooterNote?: string;
+  updatedAt?: string;
+}
+
+export type InvoiceProgressStatus = 'Draft' | 'Sent for Signing' | 'Signed & Confirmed' | 'Partially Paid' | 'Paid';
+
+export interface InvoiceSignature {
+  signed: boolean;
+  signerName?: string;
+  signerEmail?: string;
+  signedAt?: string;
+  agreedToTerms?: boolean;
+  signatureType?: 'drawn' | 'typed';
+  signatureData?: string;
+  ipAddress?: string;
+}
+
 export interface InvoiceItem {
   id: string;
   description: string;
@@ -199,6 +236,9 @@ export interface Invoice {
   paidAmount: number;
   remainingAmount: number;
   status: 'Paid' | 'Partial' | 'Unpaid' | 'Overdue';
+  progressStatus?: InvoiceProgressStatus;
+  signingToken?: string;
+  signature?: InvoiceSignature;
   items: InvoiceItem[];
   notes?: string;
   bankDetails: BankDetails;
@@ -208,6 +248,7 @@ export interface Invoice {
 export interface Payment {
   id: string;
   companyId?: string;
+
   paymentRef: string;
   invoiceId: string;
   bookingId: string;
