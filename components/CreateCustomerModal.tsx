@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, User, Phone, Mail, Globe, FileText, CheckCircle2 } from 'lucide-react';
+import { X, User, Phone, Mail, Globe, FileText, CheckCircle2, Hash, Sparkles } from 'lucide-react';
 import { Client, Agent } from '@/types/crm';
 
 interface CreateCustomerModalProps {
@@ -17,6 +17,7 @@ export default function CreateCustomerModal({
   onClientCreated,
   currentUser,
 }: CreateCustomerModalProps) {
+  const [profileNumber, setProfileNumber] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [whatsapp, setWhatsapp] = useState('');
@@ -28,6 +29,11 @@ export default function CreateCustomerModal({
   const [error, setError] = useState('');
 
   if (!isOpen) return null;
+
+  const handleGenerateProfileNumber = () => {
+    const randomNum = Math.floor(10000 + Math.random() * 90000);
+    setProfileNumber(`PRF-${randomNum}`);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +54,7 @@ export default function CreateCustomerModal({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          profileNumber: profileNumber.trim() || undefined,
           name: name.trim(),
           phone: phone.trim(),
           whatsapp: (whatsapp.trim() || phone.trim()),
@@ -70,6 +77,7 @@ export default function CreateCustomerModal({
       onClientCreated(data);
       onClose();
       // Reset form
+      setProfileNumber('');
       setName('');
       setPhone('');
       setWhatsapp('');
@@ -115,6 +123,34 @@ export default function CreateCustomerModal({
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Profile Number / Client ID */}
+            <div className="sm:col-span-2 space-y-1.5 bg-slate-50/80 p-3 rounded-xl border border-slate-200/90">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+                  <Hash className="w-3.5 h-3.5 text-emerald-600" />
+                  Profile Number / Account #
+                </label>
+                <button
+                  type="button"
+                  onClick={handleGenerateProfileNumber}
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded-md border border-emerald-200 transition-colors cursor-pointer"
+                >
+                  <Sparkles className="w-3 h-3 text-emerald-600" />
+                  Auto-Generate
+                </button>
+              </div>
+              <input
+                type="text"
+                placeholder="e.g. PRF-20261 (or leave blank to auto-generate)"
+                value={profileNumber}
+                onChange={(e) => setProfileNumber(e.target.value.toUpperCase())}
+                className="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:outline-hidden focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-slate-900 placeholder:text-slate-400 font-mono tracking-wide"
+              />
+              <p className="text-[10px] text-slate-500">
+                Enter your agency profile or record reference number, or click Auto-Generate.
+              </p>
+            </div>
+
             {/* Full Name */}
             <div className="sm:col-span-2 space-y-1.5">
               <label className="text-xs font-medium text-slate-700 flex items-center gap-1">

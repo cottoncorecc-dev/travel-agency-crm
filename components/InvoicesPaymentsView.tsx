@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Receipt,
   CreditCard,
@@ -48,6 +48,12 @@ export default function InvoicesPaymentsView({
 }: InvoicesPaymentsViewProps) {
   const [subTab, setSubTab] = useState<'invoices' | 'payments' | 'outstanding'>(activeSubTab);
   const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    if (activeSubTab) {
+      setSubTab(activeSubTab);
+    }
+  }, [activeSubTab]);
 
   // Payment Recording Modal State
   const [isRecordOpen, setIsRecordOpen] = useState(false);

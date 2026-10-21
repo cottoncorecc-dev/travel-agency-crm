@@ -17,6 +17,7 @@ import BookingModal from '@/components/BookingModal';
 import InvoiceModal from '@/components/InvoiceModal';
 import CreateCustomerModal from '@/components/CreateCustomerModal';
 import CompanySettingsView from '@/components/CompanySettingsView';
+import ProfileSettingsView from '@/components/ProfileSettingsView';
 import {
   Agent,
   Booking,
@@ -417,6 +418,8 @@ export default function HomePage() {
             agents={availableUsers}
             bookings={bookings}
             currentUser={currentUser}
+            onOpenCreateCustomer={() => setIsCreateCustomerModalOpen(true)}
+            onClientCreated={() => fetchData()}
           />
         );
 
@@ -429,6 +432,21 @@ export default function HomePage() {
             currentUser={currentUser}
             onRecordPayment={handleRecordPayment}
             onOpenInvoiceModal={handleOpenInvoiceModalDirect}
+            activeSubTab="invoices"
+            companySettings={companySettings}
+          />
+        );
+
+      case 'payments':
+        return (
+          <InvoicesPaymentsView
+            invoices={invoices}
+            payments={payments}
+            bookings={bookings}
+            currentUser={currentUser}
+            onRecordPayment={handleRecordPayment}
+            onOpenInvoiceModal={handleOpenInvoiceModalDirect}
+            activeSubTab="payments"
             companySettings={companySettings}
           />
         );
@@ -447,6 +465,17 @@ export default function HomePage() {
           <CompanySettingsView
             currentUser={currentUser}
             onSettingsUpdated={(updated) => setCompanySettings(updated)}
+          />
+        );
+
+      case 'profile-settings':
+        return (
+          <ProfileSettingsView
+            currentUser={currentUser}
+            onProfileUpdated={(updated) => {
+              setCurrentUser(updated);
+              fetchData();
+            }}
           />
         );
 
@@ -489,6 +518,8 @@ export default function HomePage() {
             agents={availableUsers}
             bookings={bookings}
             currentUser={currentUser}
+            onOpenCreateCustomer={() => setIsCreateCustomerModalOpen(true)}
+            onClientCreated={() => fetchData()}
           />
         );
 
@@ -569,6 +600,7 @@ export default function HomePage() {
         onLogout={handleLogout}
         stats={{
           totalBookings: stats.totalBookings,
+          totalClients: stats.totalClients,
           outstandingBalances: stats.outstandingBalances,
           upcomingDepartures: stats.upcomingDepartures,
           pendingVisas: stats.pendingVisas,

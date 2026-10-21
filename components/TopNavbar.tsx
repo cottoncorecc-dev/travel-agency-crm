@@ -44,22 +44,28 @@ export default function TopNavbar({
     switch (tab) {
       case 'dashboard':
         return 'Executive Overview';
-      case 'agents':
-        return 'Agent & Role Management';
-      case 'bookings':
-        return 'Master Bookings Register';
       case 'clients':
         return 'Client Portfolio';
+      case 'bookings':
+        return 'Master Bookings Register';
       case 'invoices':
-        return 'Invoices & Financial Payments';
+        return 'Invoices & Financial Billing';
+      case 'payments':
+        return 'Payments Ledger & Receipts';
       case 'reports':
         return 'Agent Performance Analytics';
+      case 'agents':
+        return 'Agent & Role Management';
+      case 'company-settings':
+        return 'Company Settings & Legal Branding';
+      case 'profile-settings':
+        return 'Profile & Account Security';
       case 'my-dashboard':
         return 'Agent Workspace';
-      case 'my-bookings':
-        return 'My Assigned Bookings';
       case 'my-clients':
         return 'My Client Accounts';
+      case 'my-bookings':
+        return 'My Assigned Bookings';
       case 'my-invoices':
         return 'My Invoices';
       case 'my-payments':
@@ -68,8 +74,6 @@ export default function TopNavbar({
         return 'Upcoming Trip Departures';
       case 'outstanding-payments':
         return 'Pending Receivables';
-      case 'company-settings':
-        return 'Company Settings & Legal Branding';
       default:
         return 'Workspace';
     }

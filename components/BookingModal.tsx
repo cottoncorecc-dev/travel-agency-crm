@@ -570,7 +570,7 @@ export default function BookingModal({
                           <option value="">-- Choose Existing Client from CRM Database --</option>
                           {availableClients.map((client) => (
                             <option key={client.id} value={client.id}>
-                              {client.name} · {client.phone} {client.email ? `(${client.email})` : ''} {client.passportNumber ? `· Pass: ${client.passportNumber}` : ''}
+                              {client.profileNumber ? `[${client.profileNumber}] ` : ''}{client.name} · {client.phone} {client.email ? `(${client.email})` : ''} {client.passportNumber ? `· Passport: ${client.passportNumber}` : ''}
                             </option>
                           ))}
                         </select>

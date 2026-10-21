@@ -267,6 +267,7 @@ export interface Payment {
 export interface Client {
   id: string;
   companyId?: string;
+  profileNumber?: string;
   name: string;
   phone: string;
   whatsapp: string;
@@ -280,6 +281,7 @@ export interface Client {
   outstandingBalance: number;
   lastBookingDate: string;
   createdAt: string;
+  notes?: string;
 }
 
 export interface AgentActivity {

@@ -1297,6 +1297,7 @@ export async function getClients(
 export async function createClient(clientData: {
   name: string;
   phone: string;
+  profileNumber?: string;
   whatsapp?: string;
   email?: string;
   passportNumber?: string;
@@ -1307,8 +1308,10 @@ export async function createClient(clientData: {
   notes?: string;
 }): Promise<Client> {
   const timestamp = Date.now();
+  const defaultProfileNo = `PRF-${Math.floor(10000 + Math.random() * 90000)}`;
   const newClient: Client = {
     id: `cl_${timestamp}_${Math.random().toString(36).substring(2, 6)}`,
+    profileNumber: clientData.profileNumber?.trim() || defaultProfileNo,
     companyId: clientData.companyId || 'comp_default',
     name: clientData.name.trim(),
     phone: clientData.phone.trim(),
@@ -1322,6 +1325,7 @@ export async function createClient(clientData: {
     totalSpent: 0,
     outstandingBalance: 0,
     lastBookingDate: '',
+    notes: clientData.notes?.trim() || '',
     createdAt: new Date().toISOString(),
   };
 

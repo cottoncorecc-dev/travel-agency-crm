@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const name = sanitizeInputString(body?.name, 100);
     const phone = sanitizeInputString(body?.phone, 30);
+    const profileNumber = body?.profileNumber ? sanitizeInputString(body.profileNumber, 40) : undefined;
     const whatsapp = sanitizeInputString(body?.whatsapp || body?.phone, 30);
     const email = sanitizeInputString(body?.email, 120);
     const passportNumber = sanitizeInputString(body?.passportNumber, 50);
@@ -53,6 +54,7 @@ export async function POST(req: NextRequest) {
     const newClient = await createClient({
       name,
       phone,
+      profileNumber,
       whatsapp,
       email,
       passportNumber,

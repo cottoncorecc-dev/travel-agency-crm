@@ -25,6 +25,7 @@ interface SidebarProps {
   onLogout: () => void;
   stats?: {
     totalBookings: number;
+    totalClients?: number;
     outstandingBalances: number;
     upcomingDepartures: number;
     pendingVisas: number;
@@ -43,25 +44,28 @@ export default function Sidebar({
   const isSuperAdmin = currentUser.role === 'super_admin';
   const isManager = currentUser.role === 'senior_agent';
 
-  // Navigation Items
+  // Navigation Items exactly ordered: dashboard, clients, bookings, invoices, payments, reports, agents, company settings, profile settings
   const adminNav = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: null },
-    { id: 'agents', label: 'Agents / Roles', icon: Users, badge: null },
-    { id: 'bookings', label: 'Bookings (All)', icon: CalendarCheck, badge: formatCount(stats?.totalBookings) },
-    { id: 'clients', label: 'Clients / Customers', icon: UserCheck, badge: null },
-    { id: 'invoices', label: 'Invoices & Payments', icon: Receipt, badge: stats?.outstandingBalances ? '£' : null },
-    { id: 'reports', label: 'Reports & Performance', icon: BarChart3, badge: null },
+    { id: 'clients', label: 'Clients', icon: UserCheck, badge: null },
+    { id: 'bookings', label: 'Bookings', icon: CalendarCheck, badge: formatCount(stats?.totalBookings) },
+    { id: 'invoices', label: 'Invoices', icon: Receipt, badge: stats?.outstandingBalances ? '£' : null },
+    { id: 'payments', label: 'Payments', icon: CreditCard, badge: null },
+    { id: 'reports', label: 'Reports', icon: BarChart3, badge: null },
+    { id: 'agents', label: 'Agents', icon: Users, badge: null },
     { id: 'company-settings', label: 'Company Settings', icon: Building, badge: null },
+    { id: 'profile-settings', label: 'Profile Settings', icon: ShieldCheck, badge: null },
   ];
 
   const agentNav = [
-    { id: 'my-dashboard', label: 'My Dashboard', icon: LayoutDashboard, badge: null },
-    { id: 'my-bookings', label: 'My Bookings', icon: CalendarCheck, badge: formatCount(stats?.totalBookings) },
-    { id: 'my-clients', label: 'My Clients', icon: UserCheck, badge: null },
-    { id: 'my-invoices', label: 'My Invoices', icon: Receipt, badge: null },
-    { id: 'my-payments', label: 'My Payments', icon: CreditCard, badge: null },
+    { id: 'my-dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: null },
+    { id: 'my-clients', label: 'Clients', icon: UserCheck, badge: null },
+    { id: 'my-bookings', label: 'Bookings', icon: CalendarCheck, badge: formatCount(stats?.totalBookings) },
+    { id: 'my-invoices', label: 'Invoices', icon: Receipt, badge: null },
+    { id: 'my-payments', label: 'Payments', icon: CreditCard, badge: null },
     { id: 'upcoming-trips', label: 'Upcoming Trips', icon: PlaneTakeoff, badge: formatCount(stats?.upcomingDepartures) },
-    { id: 'outstanding-payments', label: 'Outstanding Payments', icon: Receipt, badge: stats?.outstandingBalances ? 'Alert' : null },
+    { id: 'outstanding-payments', label: 'Outstanding Balances', icon: Receipt, badge: stats?.outstandingBalances ? 'Alert' : null },
+    { id: 'profile-settings', label: 'Profile Settings', icon: ShieldCheck, badge: null },
   ];
 
   const navItems = isSuperAdmin ? adminNav : agentNav;
