@@ -15,7 +15,7 @@ import {
   Mail,
   Phone,
 } from 'lucide-react';
-import { Booking, Invoice } from '@/types/crm';
+import { Booking, Invoice, CompanySettings } from '@/types/crm';
 
 interface InvoiceModalProps {
   isOpen: boolean;
@@ -23,6 +23,7 @@ interface InvoiceModalProps {
   booking?: Booking | null;
   invoice?: Invoice | null;
   onRecordPaymentClick?: (booking: Booking) => void;
+  companySettings?: CompanySettings | null;
 }
 
 export default function InvoiceModal({
@@ -31,6 +32,7 @@ export default function InvoiceModal({
   booking,
   invoice,
   onRecordPaymentClick,
+  companySettings,
 }: InvoiceModalProps) {
   if (!isOpen) return null;
 
@@ -44,7 +46,9 @@ export default function InvoiceModal({
   const issueDate = invoice?.issueDate || new Date().toISOString().split('T')[0];
   const dueDate = invoice?.dueDate || '2026-10-15';
   const isPaid = remainingAmount === 0;
-  const companyName = invoice?.companyName || booking?.companyName || 'Travel & Umrah Services';
+  const companyName = companySettings?.companyName || invoice?.companyName || booking?.companyName || 'Travel & Umrah Services';
+  const logoUrl = companySettings?.logoUrl;
+  const isSigned = Boolean(invoice?.signature?.signed);
 
   // Build clean client-facing line items (HIDES internal purchasing cost & agent profit margin!)
   const items = invoice?.items || [
@@ -172,19 +176,30 @@ export default function InvoiceModal({
             <div className="flex items-start justify-between border-b border-neutral-200 pb-6">
               <div>
                 <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-neutral-950 text-amber-400 flex items-center justify-center font-bold text-sm shadow-xs">
-                    {companyName.slice(0, 2).toUpperCase()}
-                  </div>
+                  {logoUrl ? (
+                    <div className="w-10 h-10 rounded-xl border border-neutral-200 overflow-hidden flex items-center justify-center bg-white p-1">
+                      <img src={logoUrl} alt={companyName} className="max-w-full max-h-full object-contain" />
+                    </div>
+                  ) : (
+                    <div className="w-10 h-10 rounded-xl bg-neutral-950 text-amber-400 flex items-center justify-center font-bold text-sm shadow-xs">
+                      {companyName.slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
                   <div>
                     <h1 className="text-xl font-bold tracking-tight text-neutral-950">{companyName}</h1>
                     <div className="text-[11px] text-amber-700 font-medium">
-                      Bespoke Luxury Travel & Pilgrimage Logistics
+                      {companySettings?.tagline || 'Bespoke Luxury Travel & Pilgrimage Logistics'}
                     </div>
                   </div>
                 </div>
-                <div className="text-[11px] text-neutral-500 mt-3 leading-relaxed">
-                  25 Berkeley Square, Mayfair, London W1J 6HN, UK<br />
-                  info@{companyName.toLowerCase().replace(/[^a-z0-9]/g, '')}.com · +44 20 7946 0912
+                <div className="text-[11px] text-neutral-500 mt-2.5 leading-relaxed">
+                  {companySettings?.address || '25 Berkeley Square, Mayfair, London W1J 6HN, UK'}<br />
+                  {companySettings?.email || 'operations@devntom.com'} · {companySettings?.phone || '+44 20 7946 0912'}
+                  {companySettings?.taxRegistrationNumber && (
+                    <div className="text-[10px] text-neutral-400 font-mono mt-0.5">
+                      Lic / VAT: {companySettings.taxRegistrationNumber}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -202,6 +217,22 @@ export default function InvoiceModal({
                 <div className="text-xs text-neutral-500">Due Date: {dueDate}</div>
               </div>
             </div>
+
+            {/* Signed Verification Banner */}
+            {isSigned && (
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs text-emerald-900">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>
+                    Agreement Signed by <strong>{invoice?.signature?.signerName}</strong> on{' '}
+                    {invoice?.signature?.signedAt ? new Date(invoice.signature.signedAt).toLocaleDateString('en-GB') : 'Verified'}
+                  </span>
+                </div>
+                <span className="text-[10px] font-mono text-emerald-700 uppercase font-bold tracking-wider">
+                  Verified Electronic Agreement
+                </span>
+              </div>
+            )}
 
             {/* Bill To & Itinerary Summary */}
             <div className="grid grid-cols-2 gap-6 text-xs">
@@ -305,17 +336,23 @@ export default function InvoiceModal({
                   <Building className="w-3.5 h-3.5 text-neutral-700" />
                   <span>Official Bank Wire Details</span>
                 </div>
-                <div className="grid grid-cols-2 gap-2 text-[11px] font-mono text-neutral-700">
-                  <div>Bank: <strong>Barclays Bank UK PLC</strong></div>
-                  <div>Account: <strong>{companyName} Escrow Account</strong></div>
-                  <div>Account No: <strong>40918234</strong></div>
-                  <div>Sort Code: <strong>20-00-00</strong></div>
-                  <div className="col-span-2">IBAN: <strong>GB29BARC20000040918234</strong> · SWIFT: <strong>BARCGB22</strong></div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono text-neutral-700">
+                  <div>Bank: <strong>{companySettings?.bankName || 'Barclays Bank UK PLC'}</strong></div>
+                  <div>Account: <strong>{companySettings?.accountName || `${companyName} Escrow Account`}</strong></div>
+                  <div>Account No: <strong>{companySettings?.accountNumber || '40918234'}</strong></div>
+                  <div>Sort Code: <strong>{companySettings?.sortCode || '20-00-00'}</strong></div>
+                  <div className="sm:col-span-2">
+                    IBAN: <strong>{companySettings?.iban || 'GB29BARC20000040918234'}</strong> · SWIFT: <strong>{companySettings?.swift || 'BARCGB22'}</strong>
+                  </div>
                 </div>
               </div>
 
               <div className="text-[11px] text-neutral-500 leading-relaxed">
-                <strong>Terms & Conditions:</strong> Please include invoice reference <strong>{invoiceRef}</strong> in all bank transfer descriptions. Remaining balance must be settled in full prior to ticketing and voucher release.
+                {companySettings?.invoiceFooterNote || (
+                  <span>
+                    <strong>Terms & Conditions:</strong> Please include invoice reference <strong>{invoiceRef}</strong> in all bank transfer descriptions. Remaining balance must be settled in full prior to ticketing and voucher release.
+                  </span>
+                )}
               </div>
 
               <div className="text-[10px] text-neutral-400 font-medium text-center pt-2 border-t border-neutral-100">

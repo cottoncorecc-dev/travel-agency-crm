@@ -470,5 +470,29 @@
       "createdAt": "2026-09-28T18:46:16.429Z",
       "_id": "6abab5f893c579c33effe6d4"
     }
-  ]
+  ],
+  "companySettings": {
+    "comp_default": {
+      "companyId": "comp_default",
+      "companyName": "Devntom Travel",
+      "tagline": "Premium Umrah, Hajj & Bespoke Global Travel Management",
+      "logoUrl": "",
+      "email": "operations@devntom.com",
+      "phone": "+44 20 7946 0912",
+      "whatsapp": "+44 7700 900123",
+      "address": "45-47 Merchant Gate, City Centre, London, EC1A 4JQ, United Kingdom",
+      "website": "https://devntom.com",
+      "taxRegistrationNumber": "GB 924 8192 44 | ATOL: 11849 | IATA: 91-2 4912",
+      "bankName": "Barclays Bank UK PLC",
+      "accountName": "Devntom Travel Ltd - Client Escrow",
+      "accountNumber": "40918234",
+      "sortCode": "20-00-00",
+      "iban": "GB29BARC20000040918234",
+      "swift": "BARCGB22",
+      "termsAndConditions": "1. BOOKING CONFIRMATION & DEPOSIT:\nA travel itinerary reservation is officially locked only upon receipt of the initial agreed deposit and acceptance of these Terms & Conditions. All deposits are strictly non-refundable once airline ticket PNRs and hotel room allocations are secured.\n\n2. PASSPORT VALIDITY & VISA REGULATIONS:\nAll travelers must possess a valid biometric machine-readable passport with a minimum of 6 months validity from the scheduled departure date. While our agency facilitates visa clearance with the Saudi Ministry of Hajj & Umrah and Foreign Affairs, final approval and entry permission are strictly within the sovereign authority of the destination government.\n\n3. HOTEL CHECK-IN & ROOM ALLOCATION:\nStandard hotel check-in time in Makkah and Madinah is 16:00, and check-out is 12:00 noon. Quad and Triple rooms utilize single standard beds or premium sofa beds in accordance with Saudi Tourism classifications. Specific room view requests (Haram view / Kaaba view) are subject to hotel availability at check-in.\n\n4. FLIGHT SCHEDULES & LUGGAGE:\nFlight schedules and baggage allowances are strictly governed by the issuing carrier. Travelers are required to report to the airport at least 3 hours prior to departure for international flights. Any airline-imposed schedule amendments or excess baggage charges are the responsibility of the traveler.\n\n5. CANCELLATION & AMENDMENT POLICIES:\nAll cancellation requests must be submitted in writing. Cancellations made >30 days prior to departure will forfeit deposit only. Cancellations within 15–30 days will incur 50% of total package value. Cancellations within 14 days of departure are 100% non-refundable.\n\n6. CLIENT DECLARATION & CONSENT:\nBy signing this agreement or checking the agreement box below, the client affirms that all traveler names, passport numbers, and itinerary details are accurate, and authorizes the processing of travel documents accordingly.",
+      "invoiceFooterNote": "Thank you for placing your trust in us for your blessed journey. All client escrow funds are independently safeguarded.",
+      "receiptFooterNote": "Official Payment Receipt. Please retain this document as verified proof of payment.",
+      "updatedAt": "2026-10-21T09:49:55.811Z"
+    }
+  }
 }

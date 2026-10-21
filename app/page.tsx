@@ -15,6 +15,8 @@ import UpcomingTripsView from '@/components/UpcomingTripsView';
 import OutstandingView from '@/components/OutstandingView';
 import BookingModal from '@/components/BookingModal';
 import InvoiceModal from '@/components/InvoiceModal';
+import CreateCustomerModal from '@/components/CreateCustomerModal';
+import CompanySettingsView from '@/components/CompanySettingsView';
 import {
   Agent,
   Booking,
@@ -23,6 +25,7 @@ import {
   Payment,
   SystemStats,
   AgentActivity,
+  CompanySettings,
 } from '@/types/crm';
 
 export default function HomePage() {
@@ -41,6 +44,7 @@ export default function HomePage() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [activities, setActivities] = useState<AgentActivity[]>([]);
+  const [companySettings, setCompanySettings] = useState<CompanySettings | null>(null);
   const [stats, setStats] = useState<SystemStats>({
     totalBookings: 0,
     totalAgents: 0,
@@ -64,6 +68,8 @@ export default function HomePage() {
   const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
   const [selectedInvoiceBooking, setSelectedInvoiceBooking] = useState<Booking | null>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
+
+  const [isCreateCustomerModalOpen, setIsCreateCustomerModalOpen] = useState(false);
 
   // Session verification on mount
   useEffect(() => {
@@ -114,7 +120,7 @@ export default function HomePage() {
     try {
       const queryParams = `?role=${currentUserRole}&agentId=${currentUserId}&teamMembers=${teamMembersKey}&companyId=${currentCompanyId}`;
 
-      const [agentsRes, bookingsRes, invoicesRes, paymentsRes, clientsRes, statsRes] =
+      const [agentsRes, bookingsRes, invoicesRes, paymentsRes, clientsRes, statsRes, settingsRes] =
         await Promise.all([
           fetch(`/api/agents?companyId=${currentCompanyId}`),
           fetch(`/api/bookings${queryParams}`),
@@ -122,6 +128,7 @@ export default function HomePage() {
           fetch(`/api/payments${queryParams}`),
           fetch(`/api/clients${queryParams}`),
           fetch(`/api/stats${queryParams}`),
+          fetch(`/api/company/settings?companyId=${currentCompanyId || 'comp_default'}`),
         ]);
 
       if (agentsRes.ok) {
@@ -153,6 +160,11 @@ export default function HomePage() {
         const st = await statsRes.json();
         setStats(st.stats);
         setActivities(st.activities || []);
+      }
+
+      if (settingsRes.ok) {
+        const sett = await settingsRes.json();
+        setCompanySettings(sett);
       }
     } catch (err) {
       console.error('Failed to fetch CRM data from database:', err);
@@ -417,6 +429,7 @@ export default function HomePage() {
             currentUser={currentUser}
             onRecordPayment={handleRecordPayment}
             onOpenInvoiceModal={handleOpenInvoiceModalDirect}
+            companySettings={companySettings}
           />
         );
 
@@ -426,6 +439,14 @@ export default function HomePage() {
             bookings={bookings}
             agents={availableUsers}
             currentUser={currentUser}
+          />
+        );
+
+      case 'company-settings':
+        return (
+          <CompanySettingsView
+            currentUser={currentUser}
+            onSettingsUpdated={(updated) => setCompanySettings(updated)}
           />
         );
 
@@ -481,6 +502,7 @@ export default function HomePage() {
             onRecordPayment={handleRecordPayment}
             onOpenInvoiceModal={handleOpenInvoiceModalDirect}
             activeSubTab="invoices"
+            companySettings={companySettings}
           />
         );
 
@@ -494,6 +516,7 @@ export default function HomePage() {
             onRecordPayment={handleRecordPayment}
             onOpenInvoiceModal={handleOpenInvoiceModalDirect}
             activeSubTab="payments"
+            companySettings={companySettings}
           />
         );
 
@@ -550,6 +573,7 @@ export default function HomePage() {
           upcomingDepartures: stats.upcomingDepartures,
           pendingVisas: stats.pendingVisas,
         }}
+        companySettings={companySettings}
       />
 
       {/* Main View Area */}
@@ -559,6 +583,7 @@ export default function HomePage() {
           currentTab={currentTab}
           currentUser={currentUser}
           onOpenCreateBooking={handleOpenCreateBooking}
+          onOpenCreateCustomer={() => setIsCreateCustomerModalOpen(true)}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           onRefreshData={fetchData}
@@ -584,6 +609,8 @@ export default function HomePage() {
         booking={editingBooking}
         currentUser={currentUser}
         onSaveBooking={handleSaveBooking}
+        availableClients={clients}
+        onOpenAddCustomer={() => setIsCreateCustomerModalOpen(true)}
       />
 
       {/* Client-Facing Invoice Modal (Hides internal costs/margin) */}
@@ -592,10 +619,22 @@ export default function HomePage() {
         onClose={() => setIsInvoiceModalOpen(false)}
         booking={selectedInvoiceBooking}
         invoice={selectedInvoice}
+        companySettings={companySettings}
         onRecordPaymentClick={(b) => {
           setIsInvoiceModalOpen(false);
           const inv = invoices.find((i) => i.bookingId === b.id || i.bookingRef === b.bookingRef);
           if (inv) handleOpenInvoiceModalDirect(inv);
+        }}
+      />
+
+      {/* Quick Customer Profile Creation Modal */}
+      <CreateCustomerModal
+        isOpen={isCreateCustomerModalOpen}
+        onClose={() => setIsCreateCustomerModalOpen(false)}
+        currentUser={currentUser}
+        onClientCreated={(newClient) => {
+          setClients((prev) => [newClient, ...prev]);
+          fetchData();
         }}
       />
     </div>

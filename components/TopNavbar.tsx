@@ -6,6 +6,7 @@ import {
   Search,
   Shield,
   User,
+  UserPlus,
   Calendar,
   RefreshCw,
   LogOut,
@@ -18,6 +19,7 @@ interface TopNavbarProps {
   currentTab: string;
   currentUser: Agent;
   onOpenCreateBooking: () => void;
+  onOpenCreateCustomer?: () => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   onRefreshData?: () => void;
@@ -29,6 +31,7 @@ export default function TopNavbar({
   currentTab,
   currentUser,
   onOpenCreateBooking,
+  onOpenCreateCustomer,
   searchQuery,
   setSearchQuery,
   onRefreshData,
@@ -65,6 +68,8 @@ export default function TopNavbar({
         return 'Upcoming Trip Departures';
       case 'outstanding-payments':
         return 'Pending Receivables';
+      case 'company-settings':
+        return 'Company Settings & Legal Branding';
       default:
         return 'Workspace';
     }
@@ -132,6 +137,17 @@ export default function TopNavbar({
             className="p-2 text-neutral-600 hover:text-neutral-900 bg-white hover:bg-neutral-50 border border-neutral-200 rounded-lg shadow-2xs transition-colors cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin text-emerald-600' : ''}`} />
+          </button>
+        )}
+
+        {onOpenCreateCustomer && (
+          <button
+            onClick={onOpenCreateCustomer}
+            className="flex items-center gap-1.5 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 font-semibold px-3 py-2 rounded-lg text-xs border border-neutral-300 transition-all cursor-pointer shadow-2xs"
+          >
+            <UserPlus className="w-3.5 h-3.5 text-neutral-600" />
+            <span className="hidden sm:inline">Add Customer</span>
+            <span className="sm:hidden">Customer</span>
           </button>
         )}
 

@@ -513,11 +513,113 @@ export default function BookingModal({
           {/* ------------------------------------------------------------- */}
           {activeSection === 'info' && (
             <div className="space-y-6">
+              {/* Client Selection vs Direct Entry Mode */}
+              <div className="p-4 bg-white border border-neutral-200/90 shadow-2xs rounded-xl space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-neutral-100 pb-3">
+                  <div>
+                    <h3 className="font-semibold text-neutral-900 uppercase tracking-wider text-[11px] flex items-center gap-2">
+                      <UserCheck className="w-4 h-4 text-emerald-600" />
+                      <span>Client Account & Identification</span>
+                    </h3>
+                    <p className="text-[11px] text-neutral-500">
+                      Select an existing CRM customer profile or choose quick direct entry without registering.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-1 bg-neutral-100 p-1 rounded-lg">
+                    <button
+                      type="button"
+                      onClick={() => setClientEntryMode('registered')}
+                      className={`px-3 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+                        clientEntryMode === 'registered'
+                          ? 'bg-white text-emerald-950 shadow-2xs font-bold'
+                          : 'text-neutral-600 hover:text-neutral-900'
+                      }`}
+                    >
+                      Registered Client ({availableClients.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setClientEntryMode('direct');
+                        setSelectedClientId('');
+                      }}
+                      className={`px-3 py-1 text-xs font-semibold rounded-md transition-all cursor-pointer ${
+                        clientEntryMode === 'direct'
+                          ? 'bg-white text-emerald-950 shadow-2xs font-bold'
+                          : 'text-neutral-600 hover:text-neutral-900'
+                      }`}
+                    >
+                      Quick Direct Entry (No Reg)
+                    </button>
+                  </div>
+                </div>
+
+                {clientEntryMode === 'registered' ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1">
+                        <label className="block text-[10px] uppercase text-neutral-500 font-semibold mb-1">
+                          Select Client Profile *
+                        </label>
+                        <select
+                          value={selectedClientId}
+                          onChange={(e) => handleSelectClient(e.target.value)}
+                          className="w-full bg-white border border-neutral-300 rounded-lg px-3 py-2 text-neutral-900 text-xs font-medium focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 focus:outline-none"
+                        >
+                          <option value="">-- Choose Existing Client from CRM Database --</option>
+                          {availableClients.map((client) => (
+                            <option key={client.id} value={client.id}>
+                              {client.name} · {client.phone} {client.email ? `(${client.email})` : ''} {client.passportNumber ? `· Pass: ${client.passportNumber}` : ''}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      {onOpenAddCustomer && (
+                        <div className="shrink-0 pt-4">
+                          <button
+                            type="button"
+                            onClick={onOpenAddCustomer}
+                            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-colors cursor-pointer"
+                          >
+                            <UserPlus className="w-3.5 h-3.5 text-emerald-600" />
+                            <span>+ New Customer</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {selectedClientId && (
+                      <div className="text-[11px] text-emerald-700 bg-emerald-50/60 p-2.5 rounded-lg border border-emerald-200 flex items-center justify-between">
+                        <span>✓ Client profile linked. Lead passenger, contact numbers, and passport have been loaded.</span>
+                        <span className="font-mono text-[10px] text-neutral-500">ID: {selectedClientId}</span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="p-3 bg-neutral-50 border border-neutral-200 rounded-lg text-[11px] text-neutral-600 flex items-center justify-between">
+                    <span>
+                      <strong>Direct Mode Active:</strong> Type passenger name and details directly below. A full booking & invoice will be created without requiring client pre-registration.
+                    </span>
+                    {onOpenAddCustomer && (
+                      <button
+                        type="button"
+                        onClick={onOpenAddCustomer}
+                        className="text-xs font-semibold text-emerald-700 underline hover:no-underline cursor-pointer ml-2 shrink-0"
+                      >
+                        Create Permanent Client
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+
               {/* Record Header Fields */}
               <div className="p-4 bg-white border border-neutral-200/90 shadow-2xs rounded-xl space-y-4">
                 <h3 className="font-semibold text-neutral-900 uppercase tracking-wider text-[11px] flex items-center justify-between">
                   <span>File Header Identification</span>
-                  <span className="text-[10px] text-amber-400 font-mono">Agent ID: {currentUser.username}</span>
+                  <span className="text-[10px] text-amber-600 font-mono">Agent ID: {currentUser.username}</span>
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                   <div>
@@ -1499,32 +1601,56 @@ export default function BookingModal({
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center justify-end gap-2.5 shrink-0">
+          {/* Action Buttons & Step Navigation */}
+          <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2.5 shrink-0">
             <button
               type="button"
               onClick={onClose}
-              className="px-3.5 py-2 text-xs font-semibold text-neutral-500 hover:text-neutral-800"
+              className="px-3.5 py-2 text-xs font-semibold text-neutral-500 hover:text-neutral-800 cursor-pointer"
             >
               Cancel
             </button>
+
+            {prevSection && (
+              <button
+                type="button"
+                onClick={handlePrevStep}
+                className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold text-neutral-700 bg-white hover:bg-neutral-100 rounded-lg border border-neutral-300 transition-colors cursor-pointer shadow-2xs"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Back</span>
+              </button>
+            )}
+
+            {nextSection && (
+              <button
+                type="button"
+                onClick={handleNextStep}
+                className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-sm transition-all cursor-pointer"
+              >
+                <span>Save & Next: {nextSection.label}</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+
             <button
               type="button"
               disabled={isSubmitting}
               onClick={() => handleSave(false)}
-              className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-neutral-800 hover:bg-neutral-700 text-neutral-800 rounded-lg border border-neutral-700 transition-colors"
+              className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold bg-neutral-100 hover:bg-neutral-200 text-neutral-800 rounded-lg border border-neutral-300 transition-colors cursor-pointer"
             >
-              <Save className="w-3.5 h-3.5" />
-              <span>Save Only</span>
+              <Save className="w-3.5 h-3.5 text-neutral-600" />
+              <span>Save Draft</span>
             </button>
+
             <button
               type="button"
               disabled={isSubmitting}
               onClick={() => handleSave(true)}
-              className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-emerald-500 hover:bg-emerald-600 text-neutral-950 font-bold shadow-sm rounded-lg shadow-sm transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-emerald-500 hover:bg-emerald-600 text-neutral-950 rounded-lg shadow-sm transition-all cursor-pointer"
             >
               <Receipt className="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>Save and Generate Invoice</span>
+              <span>Save & Generate Invoice</span>
             </button>
           </div>
         </div>

@@ -15,7 +15,7 @@ import {
   Database,
   Building,
 } from 'lucide-react';
-import { Agent, UserRole } from '@/types/crm';
+import { Agent, UserRole, CompanySettings } from '@/types/crm';
 import { formatCount } from '@/lib/utils';
 
 interface SidebarProps {
@@ -29,6 +29,7 @@ interface SidebarProps {
     upcomingDepartures: number;
     pendingVisas: number;
   };
+  companySettings?: CompanySettings | null;
 }
 
 export default function Sidebar({
@@ -37,6 +38,7 @@ export default function Sidebar({
   currentUser,
   onLogout,
   stats,
+  companySettings,
 }: SidebarProps) {
   const isSuperAdmin = currentUser.role === 'super_admin';
   const isManager = currentUser.role === 'senior_agent';
@@ -46,9 +48,10 @@ export default function Sidebar({
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, badge: null },
     { id: 'agents', label: 'Agents / Roles', icon: Users, badge: null },
     { id: 'bookings', label: 'Bookings (All)', icon: CalendarCheck, badge: formatCount(stats?.totalBookings) },
-    { id: 'clients', label: 'Clients', icon: UserCheck, badge: null },
+    { id: 'clients', label: 'Clients / Customers', icon: UserCheck, badge: null },
     { id: 'invoices', label: 'Invoices & Payments', icon: Receipt, badge: stats?.outstandingBalances ? '£' : null },
     { id: 'reports', label: 'Reports & Performance', icon: BarChart3, badge: null },
+    { id: 'company-settings', label: 'Company Settings', icon: Building, badge: null },
   ];
 
   const agentNav = [
@@ -70,22 +73,35 @@ export default function Sidebar({
       ? 'Manager / Senior Agent'
       : 'Agent';
 
+  const companyDisplayName = companySettings?.companyName || currentUser.companyName || 'Enterprise CRM';
+  const companyLogo = companySettings?.logoUrl;
+
   return (
     <aside className="w-68 bg-white border-r border-neutral-200/90 flex flex-col shrink-0 select-none text-neutral-700 shadow-xs">
       {/* Brand Header */}
       <div className="h-16 border-b border-neutral-100 flex items-center justify-between px-5 bg-white">
         <div className="flex items-center gap-3 overflow-hidden">
-          <div className="w-9 h-9 rounded-xl bg-neutral-950 flex items-center justify-center font-bold text-sm tracking-wider shadow-sm border border-neutral-800 shrink-0">
-            <span className="text-amber-400">
-              {(currentUser.companyName || 'CR').slice(0, 2).toUpperCase()}
-            </span>
-          </div>
+          {companyLogo ? (
+            <div className="w-9 h-9 rounded-xl border border-neutral-200 overflow-hidden flex items-center justify-center bg-white p-0.5 shrink-0">
+              <img
+                src={companyLogo}
+                alt={companyDisplayName}
+                className="max-w-full max-h-full object-contain"
+              />
+            </div>
+          ) : (
+            <div className="w-9 h-9 rounded-xl bg-neutral-950 flex items-center justify-center font-bold text-sm tracking-wider shadow-sm border border-neutral-800 shrink-0">
+              <span className="text-amber-400">
+                {companyDisplayName.slice(0, 2).toUpperCase()}
+              </span>
+            </div>
+          )}
           <div className="overflow-hidden">
             <div className="font-bold text-neutral-900 text-sm tracking-tight leading-none truncate">
-              {currentUser.companyName || 'Enterprise CRM'}
+              {companyDisplayName}
             </div>
             <div className="text-[11px] text-amber-700 font-medium tracking-wide mt-1 truncate">
-              Travel & Umrah CRM
+              {companySettings?.tagline || 'Travel & Umrah CRM'}
             </div>
           </div>
         </div>

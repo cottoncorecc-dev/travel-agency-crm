@@ -96,8 +96,8 @@ export default function CompanySettingsView({
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          companyId: currentUser.companyId || 'comp_default',
           ...settings,
+          companyId: currentUser.companyId || settings.companyId || 'comp_default',
         }),
       });
 
