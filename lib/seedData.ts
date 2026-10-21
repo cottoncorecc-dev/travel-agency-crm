@@ -1,0 +1,133 @@
+import { Agent, Booking, Client, Invoice, Payment, AgentActivity, Company } from '@/types/crm';
+
+export const SEED_COMPANIES: Company[] = [
+  {
+    id: 'comp_default',
+    name: 'Devntom Travel',
+    superAdminId: 'agent_super_admin',
+    superAdminName: 'Alexander Ward',
+    superAdminUsername: 'admin',
+    superAdminEmail: 'alexander@devntom.com',
+    superAdminPhone: '+44 20 7946 0912',
+    status: 'approved',
+    createdAt: '2026-01-01T08:00:00Z',
+    approvedAt: '2026-01-01T08:00:00Z',
+  },
+];
+
+export const SEED_AGENTS: Agent[] = [
+  {
+    id: 'agent_super_admin',
+    companyId: 'comp_default',
+    companyName: 'Devntom Travel',
+    name: 'Alexander Ward',
+    username: 'admin',
+    email: 'alexander@devntom.com',
+    phone: '+44 20 7946 0912',
+    password: 'password123',
+    status: 'active',
+    role: 'super_admin',
+    permissions: {
+      canEditBookings: true,
+      canDeleteBookings: true,
+      canViewCosting: true,
+      canRecordPayments: true,
+      canExportReports: true,
+    },
+    avatar: 'AW',
+    createdAt: '2026-01-01T08:00:00Z',
+    lastActive: '2026-09-25T11:45:00Z',
+  },
+  {
+    id: 'agent_manager_farhan',
+    companyId: 'comp_default',
+    companyName: 'Devntom Travel',
+    name: 'Farhan Siddiqui',
+    username: 'mgr_farhan',
+    email: 'farhan.s@devntom.com',
+    phone: '+44 20 7946 0884',
+    password: 'password123',
+    status: 'active',
+    role: 'senior_agent',
+    teamMembers: ['agent_sarah', 'agent_david'],
+    permissions: {
+      canEditBookings: true,
+      canDeleteBookings: false,
+      canViewCosting: true,
+      canRecordPayments: true,
+      canExportReports: true,
+    },
+    avatar: 'FS',
+    createdAt: '2026-01-15T09:30:00Z',
+    lastActive: '2026-09-25T10:15:00Z',
+  },
+  {
+    id: 'agent_sarah',
+    companyId: 'comp_default',
+    companyName: 'Devntom Travel',
+    name: 'Sarah Jenkins',
+    username: 'agt_sarah',
+    email: 'sarah.j@devntom.com',
+    phone: '+44 20 7946 0541',
+    password: 'password123',
+    status: 'active',
+    role: 'agent',
+    permissions: {
+      canEditBookings: true,
+      canDeleteBookings: false,
+      canViewCosting: false,
+      canRecordPayments: true,
+      canExportReports: false,
+    },
+    avatar: 'SJ',
+    createdAt: '2026-02-01T10:00:00Z',
+    lastActive: '2026-09-25T09:30:00Z',
+  },
+  {
+    id: 'agent_david',
+    name: 'David Vance',
+    username: 'agt_david',
+    email: 'david.v@devntom.com',
+    phone: '+44 20 7946 0772',
+    password: 'password123',
+    status: 'active',
+    role: 'agent',
+    permissions: {
+      canEditBookings: true,
+      canDeleteBookings: false,
+      canViewCosting: false,
+      canRecordPayments: true,
+      canExportReports: false,
+    },
+    avatar: 'DV',
+    createdAt: '2026-02-15T11:00:00Z',
+    lastActive: '2026-09-24T16:20:00Z',
+  },
+  {
+    id: 'agent_zainab',
+    name: 'Zainab Qureshi',
+    username: 'agt_zainab',
+    email: 'zainab.q@devntom.com',
+    phone: '+44 20 7946 0331',
+    password: 'password123',
+    status: 'inactive',
+    role: 'agent',
+    permissions: {
+      canEditBookings: false,
+      canDeleteBookings: false,
+      canViewCosting: false,
+      canRecordPayments: false,
+      canExportReports: false,
+    },
+    avatar: 'ZQ',
+    createdAt: '2026-03-01T08:00:00Z',
+    lastActive: '2026-08-10T14:00:00Z',
+  },
+];
+
+// Initial collections start at 00 as live data comes directly from MongoDB
+export const SEED_BOOKINGS: Booking[] = [];
+export const SEED_INVOICES: Invoice[] = [];
+export const SEED_PAYMENTS: Payment[] = [];
+export const SEED_CLIENTS: Client[] = [];
+export const SEED_ACTIVITIES: AgentActivity[] = [];

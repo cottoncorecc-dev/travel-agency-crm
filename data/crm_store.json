@@ -1,0 +1,424 @@
+{
+  "agents": [
+    {
+      "id": "agent_sa_1790621204769_sr9z",
+      "companyId": "comp_1790621204769_wnt9",
+      "companyName": "Crescent Global 1790621204055",
+      "name": "Crescent Admin",
+      "username": "crescent_1790621204055",
+      "email": "crescent_1790621204055@crescent.test",
+      "phone": "+44 7700 900777",
+      "password": "crescentpass123",
+      "status": "active",
+      "role": "super_admin",
+      "permissions": {
+        "canEditBookings": true,
+        "canDeleteBookings": true,
+        "canViewCosting": true,
+        "canRecordPayments": true,
+        "canExportReports": true
+      },
+      "avatar": "CA",
+      "createdAt": "2026-09-28T18:46:44.769Z",
+      "lastActive": "2026-09-28T18:46:45.315Z",
+      "_id": "6abab614270c25d64eb122d6"
+    },
+    {
+      "id": "agent_sa_1790621175444_x1en",
+      "companyId": "comp_1790621175444_wu7f",
+      "companyName": "Test Alpha Travels 1790621174733",
+      "name": "Alpha Leader",
+      "username": "alpha_admin_1790621174733",
+      "email": "alpha_admin_1790621174733@alpha.test",
+      "phone": "+44 7700 900888",
+      "password": "brandnewpassword456",
+      "status": "active",
+      "role": "super_admin",
+      "permissions": {
+        "canEditBookings": true,
+        "canDeleteBookings": true,
+        "canViewCosting": true,
+        "canRecordPayments": true,
+        "canExportReports": true
+      },
+      "avatar": "AL",
+      "createdAt": "2026-09-28T18:46:15.444Z",
+      "lastActive": "2026-09-28T18:46:17.087Z",
+      "_id": "6abab5f793c579c33effe6d1"
+    },
+    {
+      "id": "agent_super_admin",
+      "name": "Alexander Ward",
+      "username": "admin",
+      "email": "alexander@devntom.com",
+      "phone": "+44 20 7946 0912",
+      "password": "password123",
+      "status": "active",
+      "role": "super_admin",
+      "permissions": {
+        "canEditBookings": true,
+        "canDeleteBookings": true,
+        "canViewCosting": true,
+        "canRecordPayments": true,
+        "canExportReports": true
+      },
+      "avatar": "AW",
+      "createdAt": "2026-01-01T08:00:00Z",
+      "lastActive": "2026-09-26T11:28:26.937Z"
+    },
+    {
+      "id": "agent_manager_farhan",
+      "name": "Farhan Siddiqui",
+      "username": "mgr_farhan",
+      "email": "farhan.s@devntom.com",
+      "phone": "+44 20 7946 0884",
+      "password": "password123",
+      "status": "active",
+      "role": "senior_agent",
+      "teamMembers": [
+        "agent_sarah",
+        "agent_david"
+      ],
+      "permissions": {
+        "canEditBookings": true,
+        "canDeleteBookings": false,
+        "canViewCosting": true,
+        "canRecordPayments": true,
+        "canExportReports": true
+      },
+      "avatar": "FS",
+      "createdAt": "2026-01-15T09:30:00Z",
+      "lastActive": "2026-09-25T10:15:00Z"
+    },
+    {
+      "id": "agent_sarah",
+      "name": "Sarah Jenkins",
+      "username": "agt_sarah",
+      "email": "sarah.j@devntom.com",
+      "phone": "+44 20 7946 0541",
+      "password": "password123",
+      "status": "active",
+      "role": "agent",
+      "permissions": {
+        "canEditBookings": true,
+        "canDeleteBookings": false,
+        "canViewCosting": false,
+        "canRecordPayments": true,
+        "canExportReports": false
+      },
+      "avatar": "SJ",
+      "createdAt": "2026-02-01T10:00:00Z",
+      "lastActive": "2026-09-25T09:30:00Z"
+    },
+    {
+      "id": "agent_david",
+      "name": "David Vance",
+      "username": "agt_david",
+      "email": "david.v@devntom.com",
+      "phone": "+44 20 7946 0772",
+      "password": "password123",
+      "status": "active",
+      "role": "agent",
+      "permissions": {
+        "canEditBookings": true,
+        "canDeleteBookings": false,
+        "canViewCosting": false,
+        "canRecordPayments": true,
+        "canExportReports": false
+      },
+      "avatar": "DV",
+      "createdAt": "2026-02-15T11:00:00Z",
+      "lastActive": "2026-09-24T16:20:00Z"
+    },
+    {
+      "id": "agent_zainab",
+      "name": "Zainab Qureshi",
+      "username": "agt_zainab",
+      "email": "zainab.q@devntom.com",
+      "phone": "+44 20 7946 0331",
+      "password": "password123",
+      "status": "inactive",
+      "role": "agent",
+      "permissions": {
+        "canEditBookings": false,
+        "canDeleteBookings": false,
+        "canViewCosting": false,
+        "canRecordPayments": false,
+        "canExportReports": false
+      },
+      "avatar": "ZQ",
+      "createdAt": "2026-03-01T08:00:00Z",
+      "lastActive": "2026-08-10T14:00:00Z"
+    }
+  ],
+  "bookings": [],
+  "invoices": [],
+  "payments": [],
+  "clients": [],
+  "activities": [],
+  "sessions": [
+    {
+      "token": "sess_1790355595154_1h8c5j9q",
+      "agent": {
+        "_id": "6ab6a5399f92af576a97d3b5",
+        "id": "agent_super_admin",
+        "name": "Alexander Ward",
+        "username": "admin",
+        "email": "alexander@devntom.com",
+        "phone": "+44 20 7946 0912",
+        "password": "password123",
+        "status": "active",
+        "role": "super_admin",
+        "permissions": {
+          "canEditBookings": true,
+          "canDeleteBookings": true,
+          "canViewCosting": true,
+          "canRecordPayments": true,
+          "canExportReports": true
+        },
+        "avatar": "AW",
+        "createdAt": "2026-01-01T08:00:00Z",
+        "lastActive": "2026-09-25T16:45:46.198Z"
+      },
+      "expiresAt": "2026-10-02T16:59:55.154Z",
+      "_id": "6ab6a88bd676756459907162"
+    },
+    {
+      "token": "sess_1790355974436_4t4ahhgq",
+      "agent": {
+        "_id": "6ab6a5399f92af576a97d3b5",
+        "id": "agent_super_admin",
+        "name": "Alexander Ward",
+        "username": "admin",
+        "email": "alexander@devntom.com",
+        "phone": "+44 20 7946 0912",
+        "password": "password123",
+        "status": "active",
+        "role": "super_admin",
+        "permissions": {
+          "canEditBookings": true,
+          "canDeleteBookings": true,
+          "canViewCosting": true,
+          "canRecordPayments": true,
+          "canExportReports": true
+        },
+        "avatar": "AW",
+        "createdAt": "2026-01-01T08:00:00Z",
+        "lastActive": "2026-09-25T16:59:55.267Z"
+      },
+      "expiresAt": "2026-10-02T17:06:14.436Z",
+      "_id": "6ab6aa06683e83bf7ad92ddb"
+    },
+    {
+      "token": "sess_1790356013916_o619tgr0",
+      "agent": {
+        "_id": "6ab6a5399f92af576a97d3b5",
+        "id": "agent_super_admin",
+        "name": "Alexander Ward",
+        "username": "admin",
+        "email": "alexander@devntom.com",
+        "phone": "+44 20 7946 0912",
+        "password": "password123",
+        "status": "active",
+        "role": "super_admin",
+        "permissions": {
+          "canEditBookings": true,
+          "canDeleteBookings": true,
+          "canViewCosting": true,
+          "canRecordPayments": true,
+          "canExportReports": true
+        },
+        "avatar": "AW",
+        "createdAt": "2026-01-01T08:00:00Z",
+        "lastActive": "2026-09-25T17:06:14.526Z"
+      },
+      "expiresAt": "2026-10-02T17:06:53.916Z",
+      "_id": "6ab6aa2d683e83bf7ad92ddc"
+    },
+    {
+      "token": "sess_1790422106744_bdyax6xk",
+      "agent": {
+        "_id": "6ab6a5399f92af576a97d3b5",
+        "id": "agent_super_admin",
+        "name": "Alexander Ward",
+        "username": "admin",
+        "email": "alexander@devntom.com",
+        "phone": "+44 20 7946 0912",
+        "password": "password123",
+        "status": "active",
+        "role": "super_admin",
+        "permissions": {
+          "canEditBookings": true,
+          "canDeleteBookings": true,
+          "canViewCosting": true,
+          "canRecordPayments": true,
+          "canExportReports": true
+        },
+        "avatar": "AW",
+        "createdAt": "2026-01-01T08:00:00Z",
+        "lastActive": "2026-09-25T17:06:53.986Z"
+      },
+      "expiresAt": "2026-10-03T11:28:26.744Z",
+      "_id": "6ab7ac5a10aee10635714c17"
+    },
+    {
+      "token": "owner_1790621175687_7f2h0wxo",
+      "agent": {
+        "id": "agent_platform_owner",
+        "name": "Platform Owner",
+        "username": "owner",
+        "email": "owner@devntom.com",
+        "phone": "+44 20 7946 0000",
+        "role": "owner",
+        "status": "active",
+        "companyName": "Platform Administration HQ",
+        "permissions": {
+          "canEditBookings": true,
+          "canDeleteBookings": true,
+          "canViewCosting": true,
+          "canRecordPayments": true,
+          "canExportReports": true
+        },
+        "avatar": "PO",
+        "createdAt": "2026-09-28T18:46:15.687Z",
+        "lastActive": "2026-09-28T18:46:15.687Z"
+      },
+      "expiresAt": "2026-10-05T18:46:15.687Z",
+      "_id": "6abab5f793c579c33effe6d2"
+    },
+    {
+      "token": "sess_1790621176028_xr83yr6o",
+      "agent": {
+        "_id": "6abab5f793c579c33effe6d1",
+        "id": "agent_sa_1790621175444_x1en",
+        "companyId": "comp_1790621175444_wu7f",
+        "companyName": "Test Alpha Travels 1790621174733",
+        "name": "Alpha Leader",
+        "username": "alpha_admin_1790621174733",
+        "email": "alpha_admin_1790621174733@alpha.test",
+        "phone": "+44 7700 900888",
+        "password": "secretpassword123",
+        "status": "active",
+        "role": "super_admin",
+        "permissions": {
+          "canEditBookings": true,
+          "canDeleteBookings": true,
+          "canViewCosting": true,
+          "canRecordPayments": true,
+          "canExportReports": true
+        },
+        "avatar": "AL",
+        "createdAt": "2026-09-28T18:46:15.444Z",
+        "lastActive": "2026-09-28T18:46:15.444Z"
+      },
+      "expiresAt": "2026-10-05T18:46:16.028Z",
+      "_id": "6abab5f893c579c33effe6d3"
+    },
+    {
+      "token": "sess_1790621176941_iwgqqowt",
+      "agent": {
+        "_id": "6abab5f793c579c33effe6d1",
+        "id": "agent_sa_1790621175444_x1en",
+        "companyId": "comp_1790621175444_wu7f",
+        "companyName": "Test Alpha Travels 1790621174733",
+        "name": "Alpha Leader",
+        "username": "alpha_admin_1790621174733",
+        "email": "alpha_admin_1790621174733@alpha.test",
+        "phone": "+44 7700 900888",
+        "password": "brandnewpassword456",
+        "status": "active",
+        "role": "super_admin",
+        "permissions": {
+          "canEditBookings": true,
+          "canDeleteBookings": true,
+          "canViewCosting": true,
+          "canRecordPayments": true,
+          "canExportReports": true
+        },
+        "avatar": "AL",
+        "createdAt": "2026-09-28T18:46:15.444Z",
+        "lastActive": "2026-09-28T18:46:16.096Z"
+      },
+      "expiresAt": "2026-10-05T18:46:16.941Z",
+      "_id": "6abab5f893c579c33effe6d5"
+    },
+    {
+      "token": "sess_1790621205177_dtunku12",
+      "agent": {
+        "_id": "6abab614270c25d64eb122d6",
+        "id": "agent_sa_1790621204769_sr9z",
+        "companyId": "comp_1790621204769_wnt9",
+        "companyName": "Crescent Global 1790621204055",
+        "name": "Crescent Admin",
+        "username": "crescent_1790621204055",
+        "email": "crescent_1790621204055@crescent.test",
+        "phone": "+44 7700 900777",
+        "password": "crescentpass123",
+        "status": "active",
+        "role": "super_admin",
+        "permissions": {
+          "canEditBookings": true,
+          "canDeleteBookings": true,
+          "canViewCosting": true,
+          "canRecordPayments": true,
+          "canExportReports": true
+        },
+        "avatar": "CA",
+        "createdAt": "2026-09-28T18:46:44.769Z",
+        "lastActive": "2026-09-28T18:46:44.769Z"
+      },
+      "expiresAt": "2026-10-05T18:46:45.177Z",
+      "_id": "6abab615270c25d64eb122d7"
+    }
+  ],
+  "companies": [
+    {
+      "id": "comp_1790621204769_wnt9",
+      "name": "Crescent Global 1790621204055",
+      "superAdminId": "agent_sa_1790621204769_sr9z",
+      "superAdminName": "Crescent Admin",
+      "superAdminUsername": "crescent_1790621204055",
+      "superAdminEmail": "crescent_1790621204055@crescent.test",
+      "superAdminPhone": "+44 7700 900777",
+      "status": "approved",
+      "createdAt": "2026-09-28T18:46:44.769Z",
+      "_id": "6abab614270c25d64eb122d5",
+      "approvedAt": "2026-09-28T18:46:44.908Z"
+    },
+    {
+      "id": "comp_1790621175444_wu7f",
+      "name": "Test Alpha Travels 1790621174733",
+      "superAdminId": "agent_sa_1790621175444_x1en",
+      "superAdminName": "Alpha Leader",
+      "superAdminUsername": "alpha_admin_1790621174733",
+      "superAdminEmail": "alpha_admin_1790621174733@alpha.test",
+      "superAdminPhone": "+44 7700 900888",
+      "status": "approved",
+      "createdAt": "2026-09-28T18:46:15.444Z",
+      "_id": "6abab5f793c579c33effe6d0",
+      "approvedAt": "2026-09-28T18:46:15.758Z"
+    },
+    {
+      "id": "comp_default",
+      "name": "Devntom Travel",
+      "superAdminId": "agent_super_admin",
+      "superAdminName": "Alexander Ward",
+      "superAdminUsername": "admin",
+      "superAdminEmail": "alexander@devntom.com",
+      "superAdminPhone": "+44 20 7946 0912",
+      "status": "approved",
+      "createdAt": "2026-01-01T08:00:00Z",
+      "approvedAt": "2026-01-01T08:00:00Z"
+    }
+  ],
+  "otps": [
+    {
+      "id": "otp_1790621176429",
+      "identifier": "alpha_admin_1790621174733",
+      "code": "184798",
+      "expiresAt": 1790621776429,
+      "createdAt": "2026-09-28T18:46:16.429Z",
+      "_id": "6abab5f893c579c33effe6d4"
+    }
+  ]
+}
