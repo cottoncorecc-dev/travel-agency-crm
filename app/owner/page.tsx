@@ -66,9 +66,12 @@ export default function OwnerPage() {
   const fetchOwnerData = useCallback(async () => {
     setIsLoading(true);
     try {
+      const savedToken = typeof window !== 'undefined' ? localStorage.getItem('devntom_owner_token') : null;
+      const headers: Record<string, string> = savedToken ? { Authorization: `Bearer ${savedToken}` } : {};
+
       const [compRes, statsRes] = await Promise.all([
-        fetch('/api/owner/companies'),
-        fetch('/api/owner/stats'),
+        fetch('/api/owner/companies', { headers }),
+        fetch('/api/owner/stats', { headers }),
       ]);
 
       if (compRes.ok) {
@@ -134,9 +137,15 @@ export default function OwnerPage() {
   const handleCompanyAction = async (companyId: string, action: string, notes?: string) => {
     setActionMessage(null);
     try {
+      const savedToken = typeof window !== 'undefined' ? localStorage.getItem('devntom_owner_token') : null;
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        ...(savedToken ? { Authorization: `Bearer ${savedToken}` } : {}),
+      };
+
       const res = await fetch('/api/owner/companies', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ companyId, action, notes }),
       });
 

@@ -1,6 +1,22 @@
 import fs from 'fs';
 import path from 'path';
+import crypto from 'crypto';
 import { getMongoDb, isMongoConfigured } from './mongodb';
+
+function timingSafeCompare(a: string, b: string): boolean {
+  try {
+    const bufA = Buffer.from(String(a));
+    const bufB = Buffer.from(String(b));
+    if (bufA.length !== bufB.length) {
+      crypto.timingSafeEqual(bufA, bufA);
+      return false;
+    }
+    return crypto.timingSafeEqual(bufA, bufB);
+  } catch {
+    return false;
+  }
+}
+
 import {
   SEED_COMPANIES,
   SEED_AGENTS,
@@ -406,15 +422,12 @@ export async function authenticateOwner(
 ): Promise<{ success: boolean; session?: UserSession; error?: string }> {
   const expected = process.env.OWNER_PASSWORD || 'owner123';
   const cleanPass = passcode.trim();
-  if (
-    cleanPass !== expected &&
-    cleanPass !== 'owner123' &&
-    cleanPass !== 'admin123' &&
-    cleanPass !== 'devntom123' &&
-    cleanPass !== 'devntom_owner'
-  ) {
+  const validPasscodes = [expected, 'owner123', 'admin123', 'devntom123', 'devntom_owner'];
+  const isMatch = validPasscodes.some((p) => timingSafeCompare(p, cleanPass));
+  if (!isMatch) {
     return { success: false, error: 'Invalid platform owner access credentials' };
   }
+
 
   const ownerAgent: Agent = {
     id: 'agent_platform_owner',
@@ -1300,7 +1313,7 @@ export async function authenticateUser(
 
   // Check password (default password: password123)
   const expectedPassword = agent.password || 'password123';
-  if (pass !== expectedPassword) {
+  if (!timingSafeCompare(pass, expectedPassword)) {
     return { success: false, error: 'Invalid username/email or password' };
   }
 
@@ -1308,11 +1321,13 @@ export async function authenticateUser(
   const token = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 10)}`;
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(); // 7 days
 
+  const { password: _, ...safeAgent } = agent;
   const session: UserSession = {
     token,
-    agent,
+    agent: safeAgent as Agent,
     expiresAt,
   };
+
 
   const db = await getMongoDb();
   if (db) {

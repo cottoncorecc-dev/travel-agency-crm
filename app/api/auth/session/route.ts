@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateSession } from '@/lib/db';
+import { sanitizeAgent } from '@/lib/security';
 
 export async function GET(req: NextRequest) {
   try {
     let token = '';
-    const authHeader = req.headers.get('Authorization');
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      token = authHeader.substring(7);
+    const authHeader = req.headers.get('Authorization') || req.headers.get('authorization');
+    if (authHeader && authHeader.toLowerCase().startsWith('bearer ')) {
+      token = authHeader.substring(7).trim();
     } else {
       const cookie = req.cookies.get('devntom_session_token');
       token = cookie?.value || '';
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       authenticated: true,
-      agent: session.agent,
+      agent: sanitizeAgent(session.agent),
       expiresAt: session.expiresAt,
     });
   } catch (error: any) {
@@ -35,3 +36,4 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+

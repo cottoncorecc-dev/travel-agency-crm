@@ -9,9 +9,15 @@ import {
   reactivateCompany,
   deleteCompany,
 } from '@/lib/db';
+import { verifyOwnerAuth, sanitizeInputString } from '@/lib/security';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const auth = await verifyOwnerAuth(req);
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.error || 'Unauthorized. CRM Owner access required.' }, { status: 401 });
+    }
+
     const companies = await getCompanies();
     const agents = await getAgents();
     const allBookings = await getBookings('owner', 'platform_owner', []);
@@ -41,8 +47,15 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await verifyOwnerAuth(req);
+    if (!auth.authorized) {
+      return NextResponse.json({ error: auth.error || 'Unauthorized. CRM Owner access required.' }, { status: 401 });
+    }
+
     const body = await req.json();
-    const { action, companyId, notes } = body;
+    const action = sanitizeInputString(body?.action, 30);
+    const companyId = sanitizeInputString(body?.companyId, 60);
+    const notes = body?.notes ? sanitizeInputString(body.notes, 500) : undefined;
 
     if (!companyId || !action) {
       return NextResponse.json({ error: 'companyId and action are required.' }, { status: 400 });
@@ -79,3 +92,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to execute company action.' }, { status: 500 });
   }
 }
+
